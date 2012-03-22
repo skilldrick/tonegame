@@ -9,14 +9,30 @@
 
   $(function () {
     var $playAll = $('<button>Play all</button>');
+    var $stop = $('<button>Stop</button>').hide();
     var $play = $('<button>Play</button>');
     $('#controls').append($playAll);
+    $('#controls').append($stop);
     $('#controls').append($play);
 
     setup();
 
     $playAll.click(function () {
+      allAudios = [];
       playAll();
+      $stop.show();
+      $playAll.hide();
+    });
+
+    $stop.click(function () {
+      audios.forEach(function (audio) {
+        $(audio).off('ended');
+        audio.pause();
+        audio.currentTime = 0;
+      });
+      $('#boxes .box').css('outline-color', 'transparent');
+      $playAll.show();
+      $stop.hide();
     });
 
     $play.click(function () {
@@ -181,8 +197,9 @@
     } else {
       audio = data;
     }
-    audio.addEventListener('playing', startCallback, true);
-    audio.addEventListener('ended', endCallback, true);
+    $(audio).on('playing', startCallback);
+    $(audio).on('ended', endCallback);
     audio.play();
+    allAudios.push(audio);
   }
 })();
