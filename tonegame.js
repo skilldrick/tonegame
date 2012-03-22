@@ -1,27 +1,106 @@
 (function () {
   var SAMPLE_RATE = 44100;
+  var baseFreq = 220;
+  var scale;
+  var freqs;
+  var sines;
+  var audios;
+  var chosenIndexes;
 
   $(function () {
+    var $playAll = $('<button>Play all</button>');
     var $play = $('<button>Play</button>');
-    $('body').append($play);
+    $('#controls').append($playAll);
+    $('#controls').append($play);
+
+    setup();
+
+    $playAll.click(function () {
+      playAll();
+    });
 
     $play.click(function () {
-      var baseFreq = 220;
-      var scale = [0, 1, 4, 5, 7, 8, 10, 12, 13, 16];
-      var freqs = scale.map(function (semitone) {
-        return baseFreq * Math.pow(2, semitone/12);
-      });
-
-      var sines = freqs.map(function (freq) {
-        var sine = generateSine(freq, 0.9, 40000);
-        return fadeInOut(sine, 1000, 1000);
-      });
-
-      var index = Math.floor(Math.random() * scale.length);
-
-      playAudio(sines[index]);
+      play();
     });
+
   });
+
+  function play() {
+    if (!chosenIndexes) {
+      chosenIndexes = pickDistinct(scale.length, 2);
+    }
+    var chosenSines = chosenIndexes.map(function (index) {
+      return sines[index];
+    });
+    var mixed = mix(chosenSines);
+
+    playAudio(mixed);
+  }
+
+  function playAll() {
+    var index = 0;
+
+    function playNext() {
+      if (index < scale.length) {
+        playAndHighlight(index, playNext);
+        index++;
+      }
+    }
+    playNext();
+  }
+
+  function playAndHighlight(index, callback) {
+    $box = $('#boxes [data-index=' + index + ']');
+    playAudio(audios[index], function () {
+      $box.css('outline-color', 'yellow');
+    }, function () {
+      $box.css('outline-color', 'transparent');
+      callback && callback();
+    });
+  }
+
+  function setup() {
+    scale = [0, 1, 4, 5, 7, 8, 10, 12, 13];
+
+    freqs = scale.map(function (semitone) {
+      return baseFreq * Math.pow(2, semitone/12);
+    });
+
+    sines = freqs.map(function (freq) {
+      var sine = generateSine(freq, 0.9, 40000);
+      return fadeInOut(sine, 1000, 1000);
+    });
+
+    audios = sines.map(dataToAudio);
+
+    setupBoxes(scale.length);
+  }
+
+  function setupBoxes(count) {
+    var $boxes = $('#boxes').empty();
+    var $box;
+    var hue;
+    for (var i = 0; i < count; i++) {
+      $box = $('<span>').attr('class', 'box').attr('data-index', i);
+      hue = (360 / count) * i
+      $box.css('background-color', "hsla(" + hue + ", 50%, 50%, 1)");
+      $boxes.append($box);
+    }
+  }
+
+  function pickDistinct(max, count) {
+    var choices = [];
+    var choice;
+    while (true) {
+      choice = Math.floor(Math.random() * max);
+      if (choices.indexOf(choice) == -1) {
+        choices.push(choice);
+      }
+      if (choices.length === count) {
+        return choices;
+      }
+    }
+  }
 
 
   function generateSine(freq, level, duration) {
@@ -87,12 +166,23 @@
     return mixdown;
   }
 
-  function playAudio(data) {
+  function dataToAudio(data) {
     var normalised = data.map(function (datum) {
       return (datum * 127) + 127;
     });
     var wave = new RIFFWAVE(normalised);
-    var audio = new Audio(wave.dataURI);
+    return new Audio(wave.dataURI);
+  }
+
+  function playAudio(data, startCallback, endCallback) {
+    var audio;
+    if (data instanceof Array) {
+      audio = dataToAudio(data);
+    } else {
+      audio = data;
+    }
+    audio.addEventListener('playing', startCallback, true);
+    audio.addEventListener('ended', endCallback, true);
     audio.play();
   }
 })();
