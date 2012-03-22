@@ -19,7 +19,10 @@
 
     $playAll.click(function () {
       allAudios = [];
-      playAll();
+      playAll(function () {
+        $playAll.show();
+        $stop.hide();
+      });
       $stop.show();
       $playAll.hide();
     });
@@ -27,12 +30,16 @@
     $stop.click(function () {
       audios.forEach(function (audio) {
         $(audio).off('ended');
-        audio.pause();
-        audio.currentTime = 0;
+        reset(audio);
       });
       $('#boxes .box').css('outline-color', 'transparent');
       $playAll.show();
       $stop.hide();
+    });
+
+    $('#boxes .box').click(function () {
+      var index = $(this).data('index');
+      playAndHighlight(index);
     });
 
     $play.click(function () {
@@ -53,20 +60,22 @@
     playAudio(mixed);
   }
 
-  function playAll() {
+  function playAll(allDone) {
     var index = 0;
 
     function playNext() {
       if (index < scale.length) {
         playAndHighlight(index, playNext);
         index++;
+      } else {
+        allDone && allDone();
       }
     }
     playNext();
   }
 
   function playAndHighlight(index, callback) {
-    $box = $('#boxes [data-index=' + index + ']');
+    var $box = $('#boxes [data-index=' + index + ']');
     playAudio(audios[index], function () {
       $box.css('outline-color', 'yellow');
     }, function () {
@@ -190,6 +199,13 @@
     return new Audio(wave.dataURI);
   }
 
+  function reset(audio) {
+    try {
+      audio.pause();
+      audio.currentTime = 0;
+    } catch (e) { }
+  }
+
   function playAudio(data, startCallback, endCallback) {
     var audio;
     if (data instanceof Array) {
@@ -197,9 +213,9 @@
     } else {
       audio = data;
     }
+    reset(audio);
     $(audio).on('playing', startCallback);
     $(audio).on('ended', endCallback);
     audio.play();
-    allAudios.push(audio);
   }
 })();
