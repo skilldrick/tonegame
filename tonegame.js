@@ -6,11 +6,12 @@
   var sines;
   var audios;
   var chosenIndexes;
+  var clickedIndexes = [];
 
   $(function () {
     var $playAll = $('<button>Play all</button>');
     var $stop = $('<button>Stop</button>').hide();
-    var $play = $('<button>Play</button>');
+    var $play = $('<button>Play notes</button>');
     $('#controls').append($playAll);
     $('#controls').append($stop);
     $('#controls').append($play);
@@ -40,18 +41,30 @@
     $('#boxes .box').click(function () {
       var index = $(this).data('index');
       playAndHighlight(index);
+      clickedIndexes.push(index);
+      var lastTwo = clickedIndexes.slice(-2);
+      lastTwo.sort();
+      chosenIndexes.sort();
+
+      if (lastTwo[0] === chosenIndexes[0] && lastTwo[1] === chosenIndexes[1]) {
+        alert('YOU WIN!!!\nClick OK to start a new game.');
+        restart();
+      }
     });
 
     $play.click(function () {
       play();
     });
 
+    restart();
   });
 
+  function restart() {
+    clickedIndexes = [];
+    chosenIndexes = pickDistinct(scale.length, 2);
+  }
+
   function play() {
-    if (!chosenIndexes) {
-      chosenIndexes = pickDistinct(scale.length, 2);
-    }
     var chosenSines = chosenIndexes.map(function (index) {
       return sines[index];
     });
