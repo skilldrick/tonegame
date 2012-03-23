@@ -3,7 +3,7 @@
   var baseFreq = 220;
   var scale;
   var freqs;
-  var sines;
+  var tones;
   var audios;
   var chosenIndexes;
   var clickedIndexes = [];
@@ -65,10 +65,10 @@
   }
 
   function play() {
-    var chosenSines = chosenIndexes.map(function (index) {
-      return sines[index];
+    var chosenTones = chosenIndexes.map(function (index) {
+      return tones[index];
     });
-    var mixed = mix(chosenSines);
+    var mixed = mix(chosenTones);
 
     playAudio(mixed);
   }
@@ -104,12 +104,12 @@
       return baseFreq * Math.pow(2, semitone/12);
     });
 
-    sines = freqs.map(function (freq) {
-      var sine = generateSine(freq, 0.9, 40000);
-      return fadeInOut(sine, 1000, 1000);
+    tones = freqs.map(function (freq) {
+      var tone = generateTone(freq, 0.9, 40000);
+      return fadeInOut(tone, 1000, 1000);
     });
 
-    audios = sines.map(dataToAudio);
+    audios = tones.map(dataToAudio);
 
     setupBoxes(scale.length);
   }
@@ -141,12 +141,21 @@
   }
 
 
-  function generateSine(freq, level, duration) {
-    var sine = [];
+  function generateTone(freq, level, duration) {
+    var tone = [];
+    var factors = [0.5, 0.4, 0.3, 0.2, 0.1];
+    var factorsLength = factors.length;
+    var val;
+    var omega;
     for (var i = 0; i < duration; i++) {
-      sine.push(level * Math.sin(freq * i * 2 * Math.PI / SAMPLE_RATE));
+      var omega = 2 * i * Math.PI * freq / SAMPLE_RATE;
+      val = 0;
+      for (var j = 0; j < factorsLength; j++) {
+        val += factors[j] * Math.sin(omega * (j + 1));
+      }
+      tone.push(level * val);
     }
-    return sine;
+    return tone;
   }
 
   function generateRamp(duration) {
@@ -168,10 +177,10 @@
     }
     envelope = envelope.concat(generateRamp(outDuration));
 
-    return convolve(arr, envelope);
+    return multiply(arr, envelope);
   }
 
-  function convolve(arr1, arr2, filler) {
+  function multiply(arr1, arr2, filler) {
     if (! filler && arr1.length !== arr2.length) {
       throw new Error("Arrays not same length and no filler provided");
     }
