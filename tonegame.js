@@ -145,10 +145,11 @@
     var tone = [];
     var factors = [0.5, 0.4, 0.3, 0.2, 0.1];
     var factorsLength = factors.length;
+    var twoPiFreq = 2 * Math.PI * freq;
     var val;
     var omega;
     for (var i = 0; i < duration; i++) {
-      var omega = 2 * i * Math.PI * freq / SAMPLE_RATE;
+      var omega = twoPiFreq * i / SAMPLE_RATE;
       val = 0;
       for (var j = 0; j < factorsLength; j++) {
         val += factors[j] * Math.sin(omega * (j + 1));
