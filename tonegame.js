@@ -4,9 +4,10 @@
   var scale;
   var freqs;
   var tones;
-  var audios;
   var chosenIndexes;
   var clickedIndexes = [];
+  var context = new webkitAudioContext();
+  var timeouts = [];
 
   $(function () {
     var $playAll = $('<button>Play all</button>');
@@ -19,7 +20,6 @@
     setup();
 
     $playAll.click(function () {
-      allAudios = [];
       playAll(function () {
         $playAll.show();
         $stop.hide();
@@ -29,10 +29,8 @@
     });
 
     $stop.click(function () {
-      audios.forEach(function (audio) {
-        $(audio).off('ended');
-        reset(audio);
-      });
+      timeouts.forEach(clearTimeout);
+      timeouts = [];
       $('#boxes .box').css('outline-color', 'transparent');
       $playAll.show();
       $stop.hide();
@@ -89,7 +87,7 @@
 
   function playAndHighlight(index, callback) {
     var $box = $('#boxes [data-index=' + index + ']');
-    playAudio(audios[index], function () {
+    playAudio(tones[index], function () {
       $box.css('outline-color', 'yellow');
     }, function () {
       $box.css('outline-color', 'transparent');
@@ -105,11 +103,9 @@
     });
 
     tones = freqs.map(function (freq) {
-      var tone = generateTone(freq, 0.9, 40000);
+      var tone = generateTone(freq, 0.8, 44100);
       return fadeInOut(tone, 1000, 1000);
     });
-
-    audios = tones.map(dataToAudio);
 
     setupBoxes(scale.length);
   }
@@ -214,31 +210,24 @@
     return mixdown;
   }
 
-  function dataToAudio(data) {
-    var normalised = data.map(function (datum) {
-      return (datum * 127) + 127;
-    });
-    var wave = new RIFFWAVE(normalised);
-    return new Audio(wave.dataURI);
-  }
-
-  function reset(audio) {
-    try {
-      audio.pause();
-      audio.currentTime = 0;
-    } catch (e) { }
-  }
-
   function playAudio(data, startCallback, endCallback) {
-    var audio;
-    if (data instanceof Array) {
-      audio = dataToAudio(data);
-    } else {
-      audio = data;
+    buffer = context.createBuffer(1, 44100, 44100);
+    samples = new Float32Array(data);
+
+    var dbuf = buffer.getChannelData(0);
+    var num = 44100;
+    var sbuf = samples;
+    for (i = 0; i < num; i++) {
+      dbuf[i] = sbuf[i];
     }
-    reset(audio);
-    $(audio).on('playing', startCallback);
-    $(audio).on('ended', endCallback);
-    audio.play();
+
+    var node = context.createBufferSource();
+    node.buffer = buffer;
+    node.gain.value = 0.5;
+    node.connect(context.destination);
+    node.noteOn(0);
+
+    startCallback && startCallback();
+    timeouts.push(setTimeout(endCallback, 1000));
   }
 })();
