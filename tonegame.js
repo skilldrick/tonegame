@@ -37,6 +37,7 @@
     $('#target .box').click();
     var numberOfNotes = levels[level].notes;
     chosenIndexes = pickDistinct(scale.length, numberOfNotes);
+    $('#target').width(numberOfNotes * 80);
   }
 
   function setupButtons() {

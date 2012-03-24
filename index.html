@@ -25,7 +25,7 @@
       }
 
       #score, #level {
-        height: 170px;
+        height: 130px;
         width: 250px;
         float: left;
         text-align: center;
@@ -38,6 +38,7 @@
 
       #level {
         clear: left;
+        margin-bottom: 20px;
       }
 
       #target {
@@ -51,6 +52,11 @@
 
       #target.over {
         box-shadow: inset 0 0 5px #ccc;
+      }
+
+      #instructions {
+        clear: left;
+        margin-bottom: 50px;
       }
     </style>
     <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
@@ -72,14 +78,40 @@
       <button id='playClue' type='button'>Play clue</button>
     </div>
 
-    <p>Click "Play clue" to play one or more notes. Move the note(s) to the
-    empty box and press "Test" to see if you win.</p>
-
     <div id="target"></div>
     <div id="guess-controls">
-      <button id='playGuess' type='button'>Test</button>
+      <button id='playGuess' type='button'>Test it!</button>
     </div>
+
+    <div id="instructions">
+      <p>TL;DR: Click "Play clue" to play one or more notes. Move the note(s) to the
+      empty box and press "Test" to see if you win.</p>
+
+      <p>Click the notes at the top to play them. Each click costs one point.</p>
+
+      <p>Click "Play all" to play all the notes in sequence. This costs four points.</p>
+
+      <p>Drag the notes you think are being played in the clue to the empty box.</p>
+
+      <p>Each incorrect click on "Test" costs two points. If you are correct you
+      win ten points and a new clue is generated.</p>
+
+      <p>The level increases with your score. Each level brings more notes on
+      the board or in the clue.</p>
+    </div>
+
 
     <p><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
   </body>
+
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount','UA-3174668-9']);
+    _gaq.push(['_trackPageview'],['_trackPageLoadTime']);
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    )();
+  </script>
 </html>
