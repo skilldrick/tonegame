@@ -20,8 +20,12 @@
   }
 
   function restart() {
-    level = Math.floor(score / 30);
+    level = Math.floor(score / 50);
     updateScore(0);
+    if (level >= levels.length) {
+      alert('WHOA. I *never* expected anyone to get that far.\nGo buy yourself an icecream or something.');
+      document.location = document.location;
+    }
     scale = levels[level].scale;
     audio.setupTones(scale);
     setupBoxes(scale.length);
