@@ -2,17 +2,22 @@
   var scale;
   var chosenIndexes;
 
-  $(function () {
-    var $playAll = $('<button>Play all</button>');
-    var $stop = $('<button>Stop</button>').hide();
-    var $playClue = $('<button>Play clue</button>');
-    var $playGuess = $('<button>Test</button>');
-    $('#controls').append($playAll);
-    $('#controls').append($stop);
-    $('#controls').append($playClue);
-    $('#guess-controls').append($playGuess);
+  $(setup);
 
-    setup();
+  function setup() {
+    scale = [0, 1, 4, 5, 7, 8, 10, 12, 13];
+    audio.setupTones(scale);
+    setupBoxes(scale.length);
+    setupButtons();
+    restart();
+  }
+
+  function setupButtons() {
+    var $playAll = $('#playAll');
+    var $stop = $('#stop').hide();
+    var $playClue = $('#playClue');
+    var $playGuess = $('#playGuess');
+
 
     $playAll.click(function () {
       playAll(function () {
@@ -30,11 +35,6 @@
       $stop.hide();
     });
 
-    $('#boxes .box').click(function () {
-      var index = $(this).data('index');
-      playAndHighlight(index);
-    });
-
     $playClue.click(function () {
       audio.play(chosenIndexes);
     });
@@ -44,51 +44,18 @@
         return $(this).data('index');
       }).toArray();
       audio.playGuess(guessedIndexes);
-      chosenIndexes.sort();
-      guessedIndexes.sort();
-
-      if (chosenIndexes.toString() == guessedIndexes.toString()) {
-        alert('YOU WIN!!!\nClick OK to start a new game.');
-        restart();
-      }
+      winning(guessedIndexes);
     });
-
-    restart();
-  });
-
-  function restart() {
-    $('#target .box').click();
-    chosenIndexes = pickDistinct(scale.length, 2);
   }
 
-  function playAll(allDone) {
-    var index = 0;
+  function winning(guessedIndexes) {
+    chosenIndexes.sort();
+    guessedIndexes.sort();
 
-    function playNext() {
-      if (index < scale.length) {
-        playAndHighlight(index, playNext);
-        index++;
-      } else {
-        allDone && allDone();
-      }
+    if (chosenIndexes.toString() == guessedIndexes.toString()) {
+      alert('YOU WIN!!!\nClick OK to start a new game.');
+      restart();
     }
-    playNext();
-  }
-
-  function playAndHighlight(index, callback) {
-    var $box = $('#boxes [data-index=' + index + ']');
-    audio.play([index], function () {
-      $box.css('outline-color', 'yellow');
-    }, function () {
-      $box.css('outline-color', 'transparent');
-      callback && callback();
-    });
-  }
-
-  function setup() {
-    scale = [0, 1, 4, 5, 7, 8, 10, 12, 13];
-    audio.setupTones(scale);
-    setupBoxes(scale.length);
   }
 
   function setupBoxes(count) {
@@ -105,7 +72,12 @@
         e.originalEvent.dataTransfer.effectAllowed = 'move';
         e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
       });
+      $box.click(function () {
+        var index = $(this).data('index');
+        playAndHighlight(index);
+      });
     }
+
 
     $('#target').on('dragover', function (e) {
       e.preventDefault(); // allows us to drop
@@ -135,6 +107,35 @@
       var $el = $('#boxes .box[data-index=' + index + ']');
       $el.attr('draggable', 'true');
       $el.css('opacity', 1);
+    });
+  }
+
+  function restart() {
+    $('#target .box').click();
+    chosenIndexes = pickDistinct(scale.length, 2);
+  }
+
+  function playAll(allDone) {
+    var index = 0;
+
+    function playNext() {
+      if (index < scale.length) {
+        playAndHighlight(index, playNext);
+        index++;
+      } else {
+        allDone && allDone();
+      }
+    }
+    playNext();
+  }
+
+  function playAndHighlight(index, callback) {
+    var $box = $('#boxes [data-index=' + index + ']');
+    audio.play(index, function () {
+      $box.css('outline-color', 'yellow');
+    }, function () {
+      $box.css('outline-color', 'transparent');
+      callback && callback();
     });
   }
 

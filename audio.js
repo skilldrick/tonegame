@@ -32,6 +32,9 @@ var audio = (function () {
   }
 
   function play(chosenIndexes, startCallback, endCallback) {
+    if (!(chosenIndexes instanceof Array)) {
+      chosenIndexes = [chosenIndexes];
+    }
     var chosenTones = chosenIndexes.map(function (index) {
       return tones[index];
     });
