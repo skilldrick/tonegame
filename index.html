@@ -24,6 +24,21 @@
         position: relative;
       }
 
+      #score, #level {
+        height: 150px;
+        width: 250px;
+        float: left;
+        text-align: center;
+        font-size: 150px;
+        font-family: sans-serif;
+        color: #555;
+        line-height: 1;
+      }
+
+      #level {
+        clear: left;
+      }
+
       #target {
         width: 500px;
         height: 80px;
@@ -44,6 +59,9 @@
   <body>
     <p><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
 
+    <div id="score"></div>
+    <div id="level"></div>
+
     <div id="boxes"></div>
 
     <div id="controls">
@@ -52,7 +70,7 @@
       <button id='playClue' type='button'>Play clue</button>
     </div>
 
-    <p>Click "Play clue" to play a pair of notes. Move the two notes to the
+    <p>Click "Play clue" to play one or more notes. Move the note(s) to the
     empty box and press "Test" to see if you win.</p>
 
     <div id="target"></div>

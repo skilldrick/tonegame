@@ -1,15 +1,33 @@
 (function () {
+  var levels = [
+    { notes: 1, scale: [0, 4, 7, 12] },
+    { notes: 2, scale: [0, 4, 7, 12] },
+    { notes: 2, scale: [0, 1, 4, 5, 7, 8, 10, 12] },
+    { notes: 3, scale: [0, 1, 4, 5, 7, 8, 10, 12] },
+    { notes: 4, scale: [0, 1, 4, 5, 7, 8, 10, 12, 13, 16] }
+  ];
+  var level = 0;
+  var score = 10;
   var scale;
   var chosenIndexes;
 
   $(setup);
 
   function setup() {
-    scale = [0, 1, 4, 5, 7, 8, 10, 12, 13];
+    setupButtons();
+    updateScore(0);
+    restart();
+  }
+
+  function restart() {
+    level = Math.floor(score / 30);
+    updateScore(0);
+    scale = levels[level].scale;
     audio.setupTones(scale);
     setupBoxes(scale.length);
-    setupButtons();
-    restart();
+    $('#target .box').click();
+    var numberOfNotes = levels[level].notes;
+    chosenIndexes = pickDistinct(scale.length, numberOfNotes);
   }
 
   function setupButtons() {
@@ -20,6 +38,7 @@
 
 
     $playAll.click(function () {
+      updateScore(-4);
       playAll(function () {
         $playAll.show();
         $stop.hide();
@@ -40,6 +59,7 @@
     });
 
     $playGuess.click(function () {
+      updateScore(-2);
       var guessedIndexes = $('#target .box').map(function () {
         return $(this).data('index');
       }).toArray();
@@ -48,17 +68,25 @@
     });
   }
 
+  function updateScore(by) {
+    score += by;
+    $('#score').text(score);
+    $('#level').text(level);
+  }
+
   function winning(guessedIndexes) {
     chosenIndexes.sort();
     guessedIndexes.sort();
 
     if (chosenIndexes.toString() == guessedIndexes.toString()) {
-      alert('YOU WIN!!!\nClick OK to start a new game.');
+      updateScore(12);
+      alert('W00t!!!\nClick OK continue.');
       restart();
     }
   }
 
   function setupBoxes(count) {
+    $('#target').off();
     var $boxes = $('#boxes').empty();
     var $box;
     var hue;
@@ -73,6 +101,7 @@
         e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
       });
       $box.click(function () {
+        updateScore(-1);
         var index = $(this).data('index');
         playAndHighlight(index);
       });
@@ -108,11 +137,6 @@
       $el.attr('draggable', 'true');
       $el.css('opacity', 1);
     });
-  }
-
-  function restart() {
-    $('#target .box').click();
-    chosenIndexes = pickDistinct(scale.length, 2);
   }
 
   function playAll(allDone) {
