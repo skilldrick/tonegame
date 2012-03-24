@@ -5,17 +5,18 @@
   var freqs;
   var tones;
   var chosenIndexes;
-  var clickedIndexes = [];
   var context = new webkitAudioContext();
   var timeouts = [];
 
   $(function () {
     var $playAll = $('<button>Play all</button>');
     var $stop = $('<button>Stop</button>').hide();
-    var $play = $('<button>Play notes</button>');
+    var $play = $('<button>Play clue</button>');
+    var $playGuess = $('<button>Test</button>');
     $('#controls').append($playAll);
     $('#controls').append($stop);
     $('#controls').append($play);
+    $('#guess-controls').append($playGuess);
 
     setup();
 
@@ -39,26 +40,39 @@
     $('#boxes .box').click(function () {
       var index = $(this).data('index');
       playAndHighlight(index);
-      clickedIndexes.push(index);
-      var lastTwo = clickedIndexes.slice(-2);
-      lastTwo.sort();
-      chosenIndexes.sort();
-
-      if (lastTwo[0] === chosenIndexes[0] && lastTwo[1] === chosenIndexes[1]) {
-        alert('YOU WIN!!!\nClick OK to start a new game.');
-        restart();
-      }
     });
 
     $play.click(function () {
       play();
     });
 
+    $playGuess.click(function () {
+      var guessedIndexes = $('#target .box').map(function () {
+        return $(this).data('index');
+      }).toArray();
+      var guessedTones = guessedIndexes.map(function (index) {
+        return tones[index];
+      });
+      console.log(guessedTones);
+
+      var mixed = mix(guessedTones);
+
+      playAudio(mixed);
+
+      chosenIndexes.sort();
+      guessedIndexes.sort();
+
+      if (chosenIndexes.toString() == guessedIndexes.toString()) {
+        alert('YOU WIN!!!\nClick OK to start a new game.');
+        restart();
+      }
+    });
+
     restart();
   });
 
   function restart() {
-    clickedIndexes = [];
+    $('#target .box').click();
     chosenIndexes = pickDistinct(scale.length, 2);
   }
 
