@@ -1,7 +1,15 @@
 var audio = (function () {
+  if (! window.AudioContext) {
+    if (! window.webkitAudioContext) {
+      alert("Sorry, tonegame currently only supports Chrome (and possibly Safari).");
+      return;
+    }
+    window.AudioContext = window.webkitAudioContext;
+  }
+
   var SAMPLE_RATE = 44100;
   var baseFreq = 220;
-  var context = new webkitAudioContext();
+  var context = new AudioContext();
   var timeouts = [];
   var tones;
 

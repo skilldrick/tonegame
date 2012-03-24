@@ -1,10 +1,10 @@
 (function () {
   var levels = [
     { notes: 1, scale: [0, 4, 7, 12] },
-    { notes: 2, scale: [0, 4, 7, 12] },
-    { notes: 2, scale: [0, 1, 4, 5, 7, 8, 10, 12] },
+    { notes: 2, scale: [0, 3, 6, 8, 12] },
+    { notes: 2, scale: [0, 2, 4, 7, 11, 12, 14] },
     { notes: 3, scale: [0, 1, 4, 5, 7, 8, 10, 12] },
-    { notes: 4, scale: [0, 1, 4, 5, 7, 8, 10, 12, 13, 16] }
+    { notes: 4, scale: [0, 2, 4, 5, 7, 9, 11, 12, 14, 16] }
   ];
   var level = 0;
   var score = 10;
@@ -19,8 +19,13 @@
     restart();
   }
 
-  function restart() {
+  window.restart = restart;
+
+  function restart(override) {
     level = Math.floor(score / 50);
+    if (override) {
+      level = override;
+    }
     updateScore(0);
     if (level >= levels.length) {
       alert('WHOA. I *never* expected anyone to get that far.\nGo buy yourself an icecream or something.');
