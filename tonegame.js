@@ -138,7 +138,7 @@
 
 
   function generateTone(freq, level, duration) {
-    var tone = [];
+    var tone = new Float32Array(duration);
     var factors = [0.5, 0.4, 0.3, 0.2, 0.1];
     var factorsLength = factors.length;
     var twoPiFreq = 2 * Math.PI * freq;
@@ -150,7 +150,7 @@
       for (var j = 0; j < factorsLength; j++) {
         val += factors[j] * Math.sin(omega * (j + 1));
       }
-      tone.push(level * val);
+      tone[i] = level * val;
     }
     return tone;
   }
@@ -164,29 +164,28 @@
   }
 
   function fadeInOut(arr, inDuration, outDuration) {
-    var midDuration = arr.length - inDuration - outDuration;
-    if (midDuration < 0) {
-      throw new Error("Fades longer than array");
+    var fadeOutStart = arr.length - outDuration;
+    var envelope = new Float32Array(arr.length);
+
+    //set the first portion to be a fade in
+    envelope.set(generateRamp(inDuration).reverse());
+    //set the mid portion to be all zeroes
+    for (var i = inDuration; i < fadeOutStart; i++) {
+      envelope[i] = 1;
     }
-    var envelope = generateRamp(inDuration).reverse();
-    for (var i = 0; i < midDuration; i++) {
-      envelope.push(1);
-    }
-    envelope = envelope.concat(generateRamp(outDuration));
+    //set the last portion to be a fade out
+    envelope.set(generateRamp(outDuration), fadeOutStart);
 
     return multiply(arr, envelope);
   }
 
-  function multiply(arr1, arr2, filler) {
-    if (! filler && arr1.length !== arr2.length) {
-      throw new Error("Arrays not same length and no filler provided");
-    }
-    var result = [];
+  function multiply(arr1, arr2) {
+    var result = new Float32Array(arr1.length);
     for (var i = 0, len = arr1.length; i < len; i++) {
-      if (typeof arr2[i] == 'undefined') {
-        result.push(arr1[i]);
+      if (arr2[i] == undefined) {
+        result[i] = arr1[i];
       } else {
-        result.push(arr1[i] * arr2[i]);
+        result[i] = arr1[i] * arr2[i];
       }
     }
     return result;
@@ -200,7 +199,7 @@
       channels = [].slice.call(arguments);
     }
     var channelCount = channels.length;
-    var mixdown = [];
+    var mixdown = new Float32Array(channels[0].length);
     for (var i = 0, len = channels[0].length; i < len; i++) {
       mixdown[i] = 0;
       for (var j = 0; j < channelCount; j++) {
