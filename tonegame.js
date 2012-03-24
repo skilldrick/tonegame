@@ -115,11 +115,38 @@
     var $box;
     var hue;
     for (var i = 0; i < count; i++) {
-      $box = $('<span>').attr('class', 'box').attr('data-index', i);
+      $box = $('<span>').attr('class', 'box').attr('data-index', i).attr('id', 'box-' + i);
       hue = (360 / count) * i
-      $box.css('background-color', "hsla(" + hue + ", 50%, 50%, 1)");
+      $box.css('background-color', "hsla(" + hue + ", 70%, 50%, 1)");
       $boxes.append($box);
+      $box.attr('draggable', 'true');
+      $box.on('dragstart', function (e) {
+        e.originalEvent.dataTransfer.effectAllowed = 'move';
+        e.originalEvent.dataTransfer.setData('Text', this.id);
+      });
     }
+
+    $('#target').on('dragover', function (e) {
+      e.preventDefault(); // allows us to drop
+      $(this).addClass('over');
+      e.originalEvent.dataTransfer.dropEffect = 'move';
+    });
+
+    $('#target').on('dragleave', function (e) {
+      $(this).removeClass('over');
+    });
+
+    $('#target').on('drop', function (e) {
+      e.preventDefault();
+      $(this).removeClass('over');
+      var $el = $('#' + e.originalEvent.dataTransfer.getData('Text'));
+      var $newEl = $el.clone();
+      $el.css('opacity', 0.3);
+      $el.attr('draggable', 'false');
+
+      $(this).append($newEl);
+    });
+
   }
 
   function pickDistinct(max, count) {
