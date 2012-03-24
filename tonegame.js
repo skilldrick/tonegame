@@ -115,14 +115,14 @@
     var $box;
     var hue;
     for (var i = 0; i < count; i++) {
-      $box = $('<span>').attr('class', 'box').attr('data-index', i).attr('id', 'box-' + i);
+      $box = $('<span>').attr('class', 'box box-' + i).attr('data-index', i);
       hue = (360 / count) * i
       $box.css('background-color', "hsla(" + hue + ", 70%, 50%, 1)");
       $boxes.append($box);
       $box.attr('draggable', 'true');
       $box.on('dragstart', function (e) {
         e.originalEvent.dataTransfer.effectAllowed = 'move';
-        e.originalEvent.dataTransfer.setData('Text', this.id);
+        e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
       });
     }
 
@@ -139,7 +139,8 @@
     $('#target').on('drop', function (e) {
       e.preventDefault();
       $(this).removeClass('over');
-      var $el = $('#' + e.originalEvent.dataTransfer.getData('Text'));
+      var index = e.originalEvent.dataTransfer.getData('Text');
+      var $el = $('#boxes .box[data-index=' + index + ']');
       var $newEl = $el.clone();
       $el.css('opacity', 0.3);
       $el.attr('draggable', 'false');
@@ -147,6 +148,13 @@
       $(this).append($newEl);
     });
 
+    $('#target').on('click', '.box', function () {
+      var index = $(this).attr('data-index');
+      $(this).remove();
+      var $el = $('#boxes .box[data-index=' + index + ']');
+      $el.attr('draggable', 'true');
+      $el.css('opacity', 1);
+    });
   }
 
   function pickDistinct(max, count) {
