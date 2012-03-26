@@ -77,7 +77,7 @@ h1 {
 }
 
 #scale .box.in-scale:hover {
-  background: url(play.png) no-repeat 23 23;
+  background: url(play.png) no-repeat 23px 23px;
 }
 
 #clue {
@@ -85,7 +85,7 @@ h1 {
 }
 
 #clue .boxes:hover .box {
-  background: #999 url(play.png) no-repeat 23 23;
+  background: #999 url(play.png) no-repeat 23px 23px;
 }
 
 #clue .box {
@@ -101,7 +101,7 @@ h1 {
 }
 
 #clue .boxes:hover .question-mark {
-  display: none;
+  visibility: hidden;
 }
 
 #arrow, #tick, #cross {
