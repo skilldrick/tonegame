@@ -91,16 +91,20 @@
         $('#target').addClass('playing');
       }, function () {
         $('#target').removeClass('playing');
+        winning(guessedIndexes);
       });
-      winning(guessedIndexes);
     }
   }
 
   function winning(guessedIndexes) {
     if (sameArray(chosenIndexes, guessedIndexes)) {
       updateScore((level * 2) + 12);
-      alert('W00t!!!\nClick OK continue.');
+      $('#cross').hide();
+      $('#tick').fadeIn(200).delay(1000).fadeOut(1000);
       restart();
+    } else {
+      $('#tick').hide();
+      $('#cross').fadeIn(200).delay(1000).fadeOut(1000);
     }
   }
 

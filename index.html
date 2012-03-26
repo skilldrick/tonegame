@@ -102,15 +102,28 @@
         display: none;
       }
 
-      #arrow {
+      #arrow, #tick, #cross {
         float: left;
         height: 90px;
       }
 
-      #arrow .arrow {
+      #arrow .arrow, #tick .tick, #cross .cross {
         line-height: 90px;
         font-size: 30px;
         margin: 0;
+      }
+
+      #tick, #cross {
+        display: none;
+        margin-left: 10px;
+      }
+
+      #tick {
+        color: #0c0;
+      }
+
+      #cross {
+        color: #c00;
       }
 
       #target {
@@ -165,6 +178,9 @@
       <div id="target">
         <div class="boxes"></div>
       </div>
+
+      <div id="tick"><p class='tick'>&#x2714</p></div>
+      <div id="cross"><p class='cross'>&#x2717</p></div>
 
 
       <p id="github"><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
