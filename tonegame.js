@@ -11,6 +11,7 @@
   var scale;
   var chosenIndexes;
   var numberOfNotes = 15;
+  var exploring = true; //don't keep score to start with
 
   $(setup);
 
@@ -91,7 +92,9 @@
   }
 
   function updateScore(by) {
-    score += by;
+    if (!exploring) {
+      score += by;
+    }
     $('#score').text(score);
     $('#level').text(level);
   }
@@ -105,6 +108,7 @@
   }
 
   function playGuess() {
+    exploring = false; //As soon as there is a guess, start keeping score
     var guessedIndexes = $('#target .box').map(function () {
       return $(this).data('scale-index');
     }).toArray();
