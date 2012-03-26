@@ -33,7 +33,7 @@
     scale = levels[level].scale;
     audio.setupTones(scale);
     var numberOfNotes = levels[level].notes;
-    chosenIndexes = pickDistinct(scale.length, numberOfNotes);
+    chosenIndexes = pickDistinct(scale.length, numberOfNotes, chosenIndexes);
     setupBoxes(scale.length);
     $('#target .boxes .box').click(); //click to remove
     var boxWidth = $('#scale .boxes .box').width();
@@ -97,10 +97,7 @@
   }
 
   function winning(guessedIndexes) {
-    chosenIndexes.sort();
-    guessedIndexes.sort();
-
-    if (chosenIndexes.toString() == guessedIndexes.toString()) {
+    if (sameArray(chosenIndexes, guessedIndexes)) {
       updateScore((level * 2) + 12);
       alert('W00t!!!\nClick OK continue.');
       restart();
@@ -208,7 +205,17 @@
     });
   }
 
-  function pickDistinct(max, count) {
+  function sameArray(arr1, arr2) {
+    if (!(arr1 && arr2)) { // check both arrays are defined
+      return false;
+    }
+    arr1 = arr1.slice().sort();
+    arr2 = arr2.slice().sort();
+    //Will work as long as arr1 and arr2 are arrays of integers
+    return arr1.toString() == arr2.toString();
+  }
+
+  function pickDistinct(max, count, previousChoices) {
     var choices = [];
     var choice;
     while (true) {
@@ -217,7 +224,11 @@
         choices.push(choice);
       }
       if (choices.length === count) {
-        return choices;
+        if (sameArray(choices, previousChoices)) {
+          choices = [];
+        } else {
+          return choices;
+        }
       }
     }
   }
