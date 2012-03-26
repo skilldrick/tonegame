@@ -59,7 +59,7 @@
 
     $stop.click(function () {
       audio.stop();
-      $('#scale .boxes .box').removeClass('active');
+      $('#scale .boxes .box').removeClass('playing');
       $playAll.show();
       $stop.hide();
     });
@@ -138,7 +138,7 @@
     }
 
     for (var i = 0; i < chosenIndexes.length; i++) {
-      $('#clue .boxes').append('<div class="box"><p>?</p></div>');
+      $('#clue .boxes').append('<div class="box"><p class="question-mark">?</p></div>');
     }
 
     $('#target .boxes').on('dragover', function (e) {
@@ -193,9 +193,9 @@
   function playAndHighlight(index, callback) {
     var $box = $('#scale .boxes [data-scale-index=' + index + ']');
     audio.play(index, function () {
-      $box.addClass('active');
+      $box.addClass('playing');
     }, function () {
-      $box.removeClass('active');
+      $box.removeClass('playing');
       callback && callback();
     });
   }
