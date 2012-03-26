@@ -29,14 +29,14 @@ var audio = (function () {
     });
   }
 
-  function playGuess(indexes) {
+  function playGuess(indexes, startCallback, endCallback) {
     var guessedTones = indexes.map(function (index) {
       return tones[index];
     });
 
     var mixed = mix(guessedTones);
 
-    playAudio(mixed);
+    playAudio(mixed, startCallback, endCallback);
   }
 
   function play(chosenIndexes, startCallback, endCallback) {

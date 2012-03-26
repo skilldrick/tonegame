@@ -14,30 +14,94 @@
         text-decoration: underline;
       }
 
+      #main {
+        overflow: hidden;
+      }
+
+      #scale {
+        margin-bottom: 20px;
+      }
+
+      #scale .boxes {
+        width: 1050px;
+        overflow: hidden;
+        margin: 5px;
+        padding: 5px;
+        box-shadow: inset 0 0 5px #ccc;
+      }
+
       .box {
         display: inline-block;
         width: 60px;
         height: 60px;
         margin: 5px;
         outline: 5px solid transparent;
+      }
+
+      #scale .boxes .box {
         opacity: 0.05;
       }
 
-      #boxes .box.active {
+      #scale .boxes .box.active {
         outline-color: yellow;
       }
 
-      .box.in-scale.fade {
+      #clue {
+        float: left;
+      }
+
+      #clue .boxes {
+        margin: 5px;
+        padding: 5px;
+        box-shadow: inset 0 0 5px #ccc;
+        overflow: hidden;
+      }
+
+      #clue .box {
+        background-color: gray;
+      }
+
+      .playing .box {
+        outline: 5px solid yellow;
+      }
+
+      #clue .box p {
+        color: white;
+        text-align: center;
+      }
+
+      #clue p {
+        line-height: 60px;
+        font-size: 30px;
+        margin: 0;
+      }
+
+      #arrow {
+        float: left;
+        height: 90px;
+      }
+
+      #arrow .arrow {
+        line-height: 90px;
+        font-size: 30px;
+        margin: 0;
+      }
+
+      #scale .boxes .box.in-scale.fade {
         opacity: 0.5;
       }
 
-      .box.in-scale {
+      #scale .boxes .box.in-scale, #target .box {
         cursor: pointer;
         opacity: 1;
       }
 
-      #boxes .box.in-scale:hover {
+      #scale .boxes .box.in-scale:hover {
         background: url(play.png) no-repeat 23 23;
+      }
+
+      #target {
+        float: left;
       }
 
       #target .box:hover {
@@ -61,23 +125,24 @@
         margin-bottom: 20px;
       }
 
-      #target {
+      #target .boxes {
         width: 500px;
         height: 70px;
         padding: 5px;
         margin: 5px;
         overflow: hidden;
-        box-shadow: inset 0 0 10px #aaa;
-      }
-
-      #target.over {
         box-shadow: inset 0 0 5px #ccc;
       }
 
-      #instructions {
-        clear: left;
-        margin-bottom: 50px;
+      #target .boxes.over {
+        box-shadow: inset 0 0 10px #aaa;
       }
+
+      #github {
+        clear: left;
+        padding-top: 50px;
+      }
+
     </style>
     <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js'></script>
     <script src='audio.js'></script>
@@ -88,40 +153,32 @@
     <div id="score"></div>
     <div id="level"></div>
 
-    <p>tonegame</p>
+    <div id="main">
+      <p>tonegame</p>
 
-    <div id="boxes"></div>
+      <div id="scale">
+        <div class="boxes"></div>
 
-    <div id="controls">
-      <button id='playAll' type='button'>Play all</button>
-      <button id='stop' type='button'>Stop</button>
-      <button id='playClue' type='button'>Play clue</button>
+        <button id='playAll' type='button'>Play all notes</button>
+        <button id='stop' type='button'>Stop</button>
+      </div>
+
+      <div id="clue">
+        <div class="boxes"></div>
+        <button id='playClue' type='button'>Play clue</button>
+      </div>
+
+      <div id="arrow"><p class='arrow'>=&gt;</p></div>
+
+
+      <div id="target">
+        <div class="boxes"></div>
+        <button id='playGuess' type='button'>Test it!</button>
+      </div>
+
+
+      <p id="github"><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
     </div>
-
-    <div id="target"></div>
-    <div id="guess-controls">
-      <button id='playGuess' type='button'>Test it!</button>
-    </div>
-
-    <div id="instructions">
-      <p>TL;DR: Click "Play clue" to play one or more notes. Move the note(s) to the
-      empty box and press "Test" to see if you win.</p>
-
-      <p>Click the notes at the top to play them. Each click costs one point.</p>
-
-      <p>Click "Play all" to play all the notes in sequence. This costs four points.</p>
-
-      <p>Drag the notes you think are being played in the clue to the empty box.</p>
-
-      <p>Each incorrect click on "Test" costs two points. If you are correct you
-      win ten points and a new clue is generated.</p>
-
-      <p>The level increases with your score. Each level brings more notes on
-      the board or in the clue.</p>
-    </div>
-
-
-    <p><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
   </body>
 
   <script type="text/javascript">

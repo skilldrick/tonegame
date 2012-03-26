@@ -23,7 +23,7 @@
   window.restart = restart;
 
   function restart(override) {
-    level = Math.floor(score / 50);
+    level = Math.max(0, Math.floor(score / 50));
     if (override) {
       level = override;
     }
@@ -34,12 +34,12 @@
     }
     scale = levels[level].scale;
     audio.setupTones(scale);
-    setupBoxes(scale.length);
-    $('#target .box').click(); //click to remove
     var numberOfNotes = levels[level].notes;
     chosenIndexes = pickDistinct(scale.length, numberOfNotes);
-    var boxWidth = $('#boxes .box').width();
-    $('#target').width(numberOfNotes * (boxWidth + 10));
+    setupBoxes(scale.length);
+    $('#target .boxes .box').click(); //click to remove
+    var boxWidth = $('#scale .boxes .box').width();
+    $('#target .boxes').width(numberOfNotes * (boxWidth + 10));
   }
 
   function setupButtons() {
@@ -61,13 +61,17 @@
 
     $stop.click(function () {
       audio.stop();
-      $('#boxes .box').removeClass('active');
+      $('#scale .boxes .box').removeClass('active');
       $playAll.show();
       $stop.hide();
     });
 
     $playClue.click(function () {
-      audio.play(chosenIndexes);
+      audio.play(chosenIndexes, function () {
+        $('#clue').addClass('playing');
+      }, function () {
+        $('#clue').removeClass('playing');
+      });
     });
 
     $playGuess.click(function () {
@@ -76,7 +80,11 @@
       }).toArray();
       if (guessedIndexes.length) {
         updateScore(-2);
-        audio.playGuess(guessedIndexes);
+        audio.playGuess(guessedIndexes, function () {
+          $('#target').addClass('playing');
+        }, function () {
+          $('#target').removeClass('playing');
+        });
         winning(guessedIndexes);
       }
     });
@@ -100,8 +108,9 @@
   }
 
   function setupBoxes(count) {
-    $('#target').off();
-    var $boxes = $('#boxes').empty();
+    $('#target .boxes').off();
+    $('#clue .boxes').empty();
+    var $boxes = $('#scale .boxes').empty();
     var $box;
     var hue;
     var saturation;
@@ -130,37 +139,40 @@
       }
     }
 
+    for (var i = 0; i < chosenIndexes.length; i++) {
+      $('#clue .boxes').append('<div class="box"><p>?</p></div>');
+    }
 
-    $('#target').on('dragover', function (e) {
+    $('#target .boxes').on('dragover', function (e) {
       e.preventDefault(); // allows us to drop
       $(this).addClass('over');
       e.originalEvent.dataTransfer.dropEffect = 'move';
     });
 
-    $('#target').on('dragleave', function (e) {
+    $('#target .boxes').on('dragleave', function (e) {
       $(this).removeClass('over');
     });
 
-    $('#target').on('drop', function (e) {
+    $('#target .boxes').on('drop', function (e) {
       e.preventDefault();
       $(this).removeClass('over');
       var index = e.originalEvent.dataTransfer.getData('Text');
-      var $el = $('#boxes .box[data-index=' + index + ']');
+      var $el = $('#scale .boxes .box[data-index=' + index + ']');
       var $newEl = $el.clone();
       $el.addClass('fade');
       $el.attr('draggable', 'false');
 
       $(this).append($newEl);
 
-      if ($('#target .box').length > chosenIndexes.length) {
-        $('#target .box:first-child').click(); //click to remove
+      if ($('#target .boxes .box').length > chosenIndexes.length) {
+        $('#target .boxes .box:first-child').click(); //click to remove
       }
     });
 
-    $('#target').on('click', '.box', function () {
+    $('#target .boxes').on('click', '.box', function () {
       var index = $(this).attr('data-index');
       $(this).remove();
-      var $el = $('#boxes .box[data-index=' + index + ']');
+      var $el = $('#scale .boxes .box[data-index=' + index + ']');
       $el.attr('draggable', 'true');
       $el.removeClass('fade');
     });
@@ -181,7 +193,7 @@
   }
 
   function playAndHighlight(index, callback) {
-    var $box = $('#boxes [data-scale-index=' + index + ']');
+    var $box = $('#scale .boxes [data-scale-index=' + index + ']');
     audio.play(index, function () {
       $box.addClass('active');
     }, function () {
