@@ -23,15 +23,13 @@
   window.restart = restart;
 
   function restart(override) {
-    level = Math.max(0, Math.floor(score / 50));
+    level = Math.floor(score / 50); //Increase level every 50 points
+    level = Math.max(0, level); //Keep level positive
+    level = Math.min(level, levels.length - 1); //Cap level at top
     if (override) {
       level = override;
     }
     updateScore(0);
-    if (level >= levels.length) {
-      alert('WHOA. I *never* expected anyone to get that far.\nGo buy yourself an icecream or something.');
-      document.location = document.location;
-    }
     scale = levels[level].scale;
     audio.setupTones(scale);
     var numberOfNotes = levels[level].notes;
