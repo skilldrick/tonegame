@@ -43,8 +43,6 @@
   function setupButtons() {
     var $playAll = $('#playAll');
     var $stop = $('#stop').hide();
-    var $playClue = $('#playClue');
-    var $playGuess = $('#playGuess');
 
 
     $playAll.click(function () {
@@ -64,27 +62,8 @@
       $stop.hide();
     });
 
-    $playClue.click(function () {
-      audio.play(chosenIndexes, function () {
-        $('#clue').addClass('playing');
-      }, function () {
-        $('#clue').removeClass('playing');
-      });
-    });
-
-    $playGuess.click(function () {
-      var guessedIndexes = $('#target .box').map(function () {
-        return $(this).data('scale-index');
-      }).toArray();
-      if (guessedIndexes.length) {
-        updateScore(-2);
-        audio.playGuess(guessedIndexes, function () {
-          $('#target').addClass('playing');
-        }, function () {
-          $('#target').removeClass('playing');
-        });
-        winning(guessedIndexes);
-      }
+    $('#clue .boxes').click(function () {
+      playClue();
     });
   }
 
@@ -92,6 +71,29 @@
     score += by;
     $('#score').text(score);
     $('#level').text(level);
+  }
+
+  function playClue() {
+    audio.play(chosenIndexes, function () {
+      $('#clue').addClass('playing');
+    }, function () {
+      $('#clue').removeClass('playing');
+    });
+  }
+
+  function playGuess() {
+    var guessedIndexes = $('#target .box').map(function () {
+      return $(this).data('scale-index');
+    }).toArray();
+    if (guessedIndexes.length) {
+      updateScore(-2);
+      audio.playGuess(guessedIndexes, function () {
+        $('#target').addClass('playing');
+      }, function () {
+        $('#target').removeClass('playing');
+      });
+      winning(guessedIndexes);
+    }
   }
 
   function winning(guessedIndexes) {
@@ -162,8 +164,14 @@
 
       $(this).append($newEl);
 
-      if ($('#target .boxes .box').length > chosenIndexes.length) {
+      var numberOfBoxes = $('#target .boxes .box').length;
+      // if the player has chosen enough notes, test them
+      if (numberOfBoxes == chosenIndexes.length) {
+        playGuess();
+      //if there are too many notes, remove the first and test
+      } else if (numberOfBoxes > chosenIndexes.length) {
         $('#target .boxes .box:first-child').click(); //click to remove
+        playGuess();
       }
     });
 
