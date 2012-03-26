@@ -54,7 +54,7 @@ var audio = (function () {
 
   function generateTone(freq, level, duration) {
     var tone = new Float32Array(duration);
-    var factors = [0.5, 0.4, 0.3, 0.2, 0.1];
+    var factors = [0.5, 0.4, 0.3, 0.25, 0.15, 0.1, 0.1];
     var factorsLength = factors.length;
     var twoPiFreq = 2 * Math.PI * freq;
     var val;

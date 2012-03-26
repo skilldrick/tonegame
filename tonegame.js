@@ -4,12 +4,13 @@
     { notes: 2, scale: [0, 3, 6, 8, 12] },
     { notes: 2, scale: [0, 2, 4, 7, 11, 12, 14] },
     { notes: 3, scale: [0, 1, 4, 5, 7, 8, 10, 12] },
-    { notes: 4, scale: [0, 2, 4, 5, 7, 9, 11, 12, 14, 16] }
+    { notes: 4, scale: [0, 2, 4, 5, 7, 9, 11, 12, 14] }
   ];
   var level = 0;
   var score = 10;
   var scale;
   var chosenIndexes;
+  var numberOfNotes = 15;
 
   $(setup);
 
@@ -37,7 +38,8 @@
     $('#target .box').click();
     var numberOfNotes = levels[level].notes;
     chosenIndexes = pickDistinct(scale.length, numberOfNotes);
-    $('#target').width(numberOfNotes * 80);
+    var boxWidth = $('#boxes .box').width();
+    $('#target').width(numberOfNotes * (boxWidth + 10));
   }
 
   function setupButtons() {
@@ -71,7 +73,7 @@
     $playGuess.click(function () {
       updateScore(-2);
       var guessedIndexes = $('#target .box').map(function () {
-        return $(this).data('index');
+        return $(this).data('scale-index');
       }).toArray();
       audio.playGuess(guessedIndexes);
       winning(guessedIndexes);
@@ -100,21 +102,30 @@
     var $boxes = $('#boxes').empty();
     var $box;
     var hue;
-    for (var i = 0; i < count; i++) {
-      $box = $('<span>').attr('class', 'box box-' + i).attr('data-index', i);
-      hue = (360 / count) * i
-      $box.css('background-color', "hsla(" + hue + ", 70%, 50%, 1)");
+    var saturation;
+    var octave;
+    for (var i = 0; i < numberOfNotes; i++) {
+      $box = $('<span>').attr('class', 'box box-' + i);
+      $box.attr('data-index', i);
+      hue = (360 / 12) * i
+      octave = Math.floor(i / 12);
+      saturation = (octave === 0) ? 80 : 60;
+      $box.css('background-color', "hsla(" + hue + ", " + saturation + "%, 50%, 1)");
       $boxes.append($box);
-      $box.attr('draggable', 'true');
-      $box.on('dragstart', function (e) {
-        e.originalEvent.dataTransfer.effectAllowed = 'move';
-        e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
-      });
-      $box.click(function () {
-        updateScore(-1);
-        var index = $(this).data('index');
-        playAndHighlight(index);
-      });
+      if (scale.indexOf(i) > -1) { //this is a note
+        $box.attr('data-scale-index', scale.indexOf(i));
+        $box.addClass('in-scale');
+        $box.attr('draggable', 'true');
+        $box.on('dragstart', function (e) {
+          e.originalEvent.dataTransfer.effectAllowed = 'move';
+          e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
+        });
+        $box.click(function () {
+          updateScore(-1);
+          var scaleIndex = $(this).data('scale-index');
+          playAndHighlight(scaleIndex);
+        });
+      }
     }
 
 
@@ -134,7 +145,7 @@
       var index = e.originalEvent.dataTransfer.getData('Text');
       var $el = $('#boxes .box[data-index=' + index + ']');
       var $newEl = $el.clone();
-      $el.css('opacity', 0.3);
+      $el.css('opacity', 0.5);
       $el.attr('draggable', 'false');
 
       $(this).append($newEl);
@@ -143,7 +154,7 @@
     $('#target').on('click', '.box', function () {
       var index = $(this).attr('data-index');
       $(this).remove();
-      var $el = $('#boxes .box[data-index=' + index + ']');
+      var $el = $('#boxes .box[data-index=' + scale[index] + ']');
       $el.attr('draggable', 'true');
       $el.css('opacity', 1);
     });
@@ -164,7 +175,7 @@
   }
 
   function playAndHighlight(index, callback) {
-    var $box = $('#boxes [data-index=' + index + ']');
+    var $box = $('#boxes [data-scale-index=' + index + ']');
     audio.play(index, function () {
       $box.css('outline-color', 'yellow');
     }, function () {

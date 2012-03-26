@@ -16,12 +16,16 @@
 
       .box {
         display: inline-block;
-        width: 70px;
-        height: 70px;
-        cursor: pointer;
+        width: 60px;
+        height: 60px;
         margin: 5px;
         outline: 5px solid transparent;
-        position: relative;
+        opacity: 0.05;
+      }
+
+      .box.in-scale {
+        cursor: pointer;
+        opacity: 1;
       }
 
       #score, #level {
@@ -43,7 +47,7 @@
 
       #target {
         width: 500px;
-        height: 80px;
+        height: 70px;
         padding: 5px;
         margin: 5px;
         overflow: hidden;
@@ -112,6 +116,6 @@
       var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
       ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
       var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-    )();
+    })();
   </script>
 </html>
