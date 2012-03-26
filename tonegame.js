@@ -61,7 +61,7 @@
 
     $stop.click(function () {
       audio.stop();
-      $('#boxes .box').css('outline-color', 'transparent');
+      $('#boxes .box').removeClass('active');
       $playAll.show();
       $stop.hide();
     });
@@ -147,7 +147,7 @@
       var index = e.originalEvent.dataTransfer.getData('Text');
       var $el = $('#boxes .box[data-index=' + index + ']');
       var $newEl = $el.clone();
-      $el.css('opacity', 0.5);
+      $el.addClass('fade');
       $el.attr('draggable', 'false');
 
       $(this).append($newEl);
@@ -162,7 +162,7 @@
       $(this).remove();
       var $el = $('#boxes .box[data-index=' + index + ']');
       $el.attr('draggable', 'true');
-      $el.css('opacity', 1);
+      $el.removeClass('fade');
     });
   }
 
@@ -183,9 +183,9 @@
   function playAndHighlight(index, callback) {
     var $box = $('#boxes [data-scale-index=' + index + ']');
     audio.play(index, function () {
-      $box.css('outline-color', 'yellow');
+      $box.addClass('active');
     }, function () {
-      $box.css('outline-color', 'transparent');
+      $box.removeClass('active');
       callback && callback();
     });
   }

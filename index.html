@@ -23,6 +23,14 @@
         opacity: 0.05;
       }
 
+      #boxes .box.active {
+        outline-color: yellow;
+      }
+
+      .box.in-scale.fade {
+        opacity: 0.5;
+      }
+
       .box.in-scale {
         cursor: pointer;
         opacity: 1;
@@ -30,6 +38,10 @@
 
       #boxes .box.in-scale:hover {
         background: url(play.png) no-repeat 23 23;
+      }
+
+      #target .box:hover {
+        background: url(cross.png) no-repeat 23 23;
       }
 
       #score, #level {
