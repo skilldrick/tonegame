@@ -35,7 +35,7 @@
     scale = levels[level].scale;
     audio.setupTones(scale);
     setupBoxes(scale.length);
-    $('#target .box').click();
+    $('#target .box').click(); //click to remove
     var numberOfNotes = levels[level].notes;
     chosenIndexes = pickDistinct(scale.length, numberOfNotes);
     var boxWidth = $('#boxes .box').width();
@@ -71,12 +71,14 @@
     });
 
     $playGuess.click(function () {
-      updateScore(-2);
       var guessedIndexes = $('#target .box').map(function () {
         return $(this).data('scale-index');
       }).toArray();
-      audio.playGuess(guessedIndexes);
-      winning(guessedIndexes);
+      if (guessedIndexes.length) {
+        updateScore(-2);
+        audio.playGuess(guessedIndexes);
+        winning(guessedIndexes);
+      }
     });
   }
 
@@ -149,12 +151,16 @@
       $el.attr('draggable', 'false');
 
       $(this).append($newEl);
+
+      if ($('#target .box').length > chosenIndexes.length) {
+        $('#target .box:first-child').click(); //click to remove
+      }
     });
 
     $('#target').on('click', '.box', function () {
       var index = $(this).attr('data-index');
       $(this).remove();
-      var $el = $('#boxes .box[data-index=' + scale[index] + ']');
+      var $el = $('#boxes .box[data-index=' + index + ']');
       $el.attr('draggable', 'true');
       $el.css('opacity', 1);
     });
