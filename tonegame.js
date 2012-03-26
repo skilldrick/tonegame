@@ -101,7 +101,7 @@
     guessedIndexes.sort();
 
     if (chosenIndexes.toString() == guessedIndexes.toString()) {
-      updateScore(12);
+      updateScore((level * 2) + 12);
       alert('W00t!!!\nClick OK continue.');
       restart();
     }
