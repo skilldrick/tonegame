@@ -113,7 +113,7 @@
       return $(this).data('scale-index');
     }).toArray();
     if (guessedIndexes.length) {
-      audio.playGuess(guessedIndexes, function () {
+      audio.play(guessedIndexes, function () {
         $('#target').addClass('playing');
       }, function () {
         $('#target').removeClass('playing');

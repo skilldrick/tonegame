@@ -1,154 +1,69 @@
 var audio = (function () {
-  if (! window.AudioContext) {
-    if (! window.webkitAudioContext) {
-      alert("Sorry, tonegame currently only supports Chrome (and possibly Safari).");
-      return;
-    }
-    window.AudioContext = window.webkitAudioContext;
-  }
 
-  var SAMPLE_RATE = 44100;
   var baseFreq = 220;
-  var context = new AudioContext();
-  var timeouts = [];
-  var tones;
-
-  function stop() {
-    timeouts.forEach(clearTimeout);
-    timeouts = [];
-  }
+  var c = new AudioContext();
+  var freqs;
 
   function setupTones(scale) {
-    var freqs = scale.map(function (semitone) {
+    freqs = scale.map(function (semitone) {
       return baseFreq * Math.pow(2, semitone/12);
     });
-
-    tones = freqs.map(function (freq) {
-      var tone = generateTone(freq, 0.8, 44100);
-      return fadeInOut(tone, 1000, 1000);
-    });
-  }
-
-  function playGuess(indexes, startCallback, endCallback) {
-    var guessedTones = indexes.map(function (index) {
-      return tones[index];
-    });
-
-    var mixed = mix(guessedTones);
-
-    playAudio(mixed, startCallback, endCallback);
   }
 
   function play(chosenIndexes, startCallback, endCallback) {
     if (!(chosenIndexes instanceof Array)) {
       chosenIndexes = [chosenIndexes];
     }
-    var chosenTones = chosenIndexes.map(function (index) {
-      return tones[index];
+
+    chosenIndexes.forEach(function (item) {
+      playTone(freqs[item], startCallback, endCallback);
     });
-    var mixed = mix(chosenTones);
-
-    playAudio(mixed, startCallback, endCallback);
   }
 
+  function playTone(freq, startCallback, endCallback) {
+    var length = 1;
+    var osc = c.createOscillator();
+    var g = c.createGain();
 
-  function generateTone(freq, level, duration) {
-    var tone = new Float32Array(duration);
-    var factors = [0.5, 0.4, 0.3, 0.25, 0.15, 0.1, 0.1];
-    var factorsLength = factors.length;
-    var twoPiFreq = 2 * Math.PI * freq;
-    var val;
-    var omega;
-    for (var i = 0; i < duration; i++) {
-      var omega = twoPiFreq * i / SAMPLE_RATE;
-      val = 0;
-      for (var j = 0; j < factorsLength; j++) {
-        val += factors[j] * Math.sin(omega * (j + 1));
-      }
-      tone[i] = level * val;
-    }
-    return tone;
-  }
+    osc.frequency.value = freq;
 
-  function generateRamp(duration) {
-    var arr = [];
-    for (var i = 0; i < duration; i++) {
-      arr.push(1 - (i / duration));
-    }
-    return arr;
-  }
+    setWaveform(osc);
+    setFadeInAndOut(g, length);
 
-  function fadeInOut(arr, inDuration, outDuration) {
-    var fadeOutStart = arr.length - outDuration;
-    var envelope = new Float32Array(arr.length);
+    osc.start(c.currentTime);
+    osc.stop(c.currentTime + length);
 
-    //set the first portion to be a fade in
-    envelope.set(generateRamp(inDuration).reverse());
-    //set the mid portion to be all zeroes
-    for (var i = inDuration; i < fadeOutStart; i++) {
-      envelope[i] = 1;
-    }
-    //set the last portion to be a fade out
-    envelope.set(generateRamp(outDuration), fadeOutStart);
-
-    return multiply(arr, envelope);
-  }
-
-  function multiply(arr1, arr2) {
-    var result = new Float32Array(arr1.length);
-    for (var i = 0, len = arr1.length; i < len; i++) {
-      if (arr2[i] == undefined) {
-        result[i] = arr1[i];
-      } else {
-        result[i] = arr1[i] * arr2[i];
-      }
-    }
-    return result;
-  }
-
-  function mix() {
-    var channels;
-    if (arguments.length === 1) {
-      channels = arguments[0];
-    } else {
-      channels = [].slice.call(arguments);
-    }
-    var channelCount = channels.length;
-    var mixdown = new Float32Array(channels[0].length);
-    for (var i = 0, len = channels[0].length; i < len; i++) {
-      mixdown[i] = 0;
-      for (var j = 0; j < channelCount; j++) {
-        mixdown[i] += channels[j][i] / channelCount;
-      }
-    }
-    return mixdown;
-  }
-
-  function playAudio(data, startCallback, endCallback) {
-    buffer = context.createBuffer(1, 44100, 44100);
-    samples = new Float32Array(data);
-
-    var dbuf = buffer.getChannelData(0);
-    var num = 44100;
-    var sbuf = samples;
-    for (i = 0; i < num; i++) {
-      dbuf[i] = sbuf[i];
-    }
-
-    var node = context.createBufferSource();
-    node.buffer = buffer;
-    node.gain.value = 0.5;
-    node.connect(context.destination);
-    node.noteOn(0);
+    osc.connect(g);
+    g.connect(c.destination);
 
     startCallback && startCallback();
-    timeouts.push(setTimeout(endCallback, 1000));
+    osc.onended = endCallback;
+  }
+
+  function setWaveform(osc) {
+    // Create waveform with the following harmonic coefficients
+    var real = new Float32Array([0, 1, 0.8, 0.6, 0.5, 0.3, 0.2, 0.2]);
+    var imag = new Float32Array(8);
+    var wave = c.createPeriodicWave(real, imag);
+    osc.type = 'custom';
+    osc.setPeriodicWave(wave);
+  }
+
+  function setFadeInAndOut(g, length) {
+    var maxGain = 1;
+    var minGain = 0.01; // Exponential ramp can't start at zero
+    var fadeTime = 0.05;
+    var start = c.currentTime;
+    var end = start + length;
+
+    g.gain.setValueAtTime(minGain, start);
+    g.gain.exponentialRampToValueAtTime(maxGain, start + fadeTime);
+    g.gain.setValueAtTime(maxGain, end - fadeTime);
+    g.gain.exponentialRampToValueAtTime(minGain, end);
   }
 
   return {
     setupTones: setupTones,
-    play: play,
-    playGuess: playGuess,
-    stop: stop
+    play: play
   };
 })();
