@@ -211,4 +211,9 @@
       }
     }
   }
+
+  // Helpful for mobile debugging
+  window.onerror = function (e) {
+    $("#errors").text(e.toString());
+  };
 })();

@@ -1,7 +1,7 @@
 var audio = (function () {
 
   var baseFreq = 220;
-  var c = new AudioContext();
+  var c = new (window.AudioContext || window.webkitAudioContext)();
   var freqs;
 
   function setupTones(scale) {
@@ -41,12 +41,16 @@ var audio = (function () {
   }
 
   function setWaveform(osc) {
-    // Create waveform with the following harmonic coefficients
-    var real = new Float32Array([0, 1, 0.8, 0.6, 0.5, 0.3, 0.2, 0.2]);
-    var imag = new Float32Array(8);
-    var wave = c.createPeriodicWave(real, imag);
-    osc.type = 'custom';
-    osc.setPeriodicWave(wave);
+    try {
+      // Create waveform with the following harmonic coefficients
+      var real = new Float32Array([0, 1, 0.8, 0.6, 0.5, 0.3, 0.2, 0.2]);
+      var imag = new Float32Array(8);
+      var wave = c.createPeriodicWave(real, imag);
+      osc.type = 'custom';
+      osc.setPeriodicWave(wave);
+    } catch (e) { // Not all audio contexts can support custom type
+      osc.type = 'triangle';
+    }
   }
 
   function setFadeInAndOut(g, length) {
