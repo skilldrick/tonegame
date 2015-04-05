@@ -27,43 +27,10 @@
       playClue();
     });
 
-    $('#target .boxes').on('dragover', function (e) {
-      e.preventDefault(); // allows us to drop
-      $(this).addClass('over');
-      e.originalEvent.dataTransfer.dropEffect = 'move';
-    });
-
-    $('#target .boxes').on('dragleave', function (e) {
-      $(this).removeClass('over');
-    });
-
-    $('#target .boxes').on('drop', function (e) {
-      e.preventDefault();
-      $(this).removeClass('over');
-      var index = e.originalEvent.dataTransfer.getData('Text');
-      var $el = $('#scale .boxes .box[data-index=' + index + ']');
-      var $newEl = $el.clone();
-      $el.addClass('fade');
-      $el.attr('draggable', 'false');
-
-      $(this).append($newEl);
-
-      var numberOfBoxes = $('#target .boxes .box').length;
-      // if the player has chosen enough notes, test them
-      if (numberOfBoxes == chosenIndexes.length) {
-        playGuess();
-      //if there are too many notes, remove the first and test
-      } else if (numberOfBoxes > chosenIndexes.length) {
-        $('#target .boxes .box:first-child').click(); //click to remove
-        playGuess();
-      }
-    });
-
     $('#target .boxes').on('click', '.box', function () {
       var index = $(this).attr('data-index');
       $(this).remove();
       var $el = $('#scale .boxes .box[data-index=' + index + ']');
-      $el.attr('draggable', 'true');
       $el.removeClass('fade');
     });
   }
@@ -135,6 +102,31 @@
     }
   }
 
+  function submitGuess(e) {
+    e.preventDefault();
+    var index = $(this).attr('data-index')
+    var $el = $('#scale .boxes .box[data-index=' + index + ']');
+    var $newEl = $el.clone();
+
+    $('#target .boxes').append($newEl);
+
+    var numberOfBoxes = $('#target .boxes .box').length;
+    // if the player has chosen enough notes, test them
+    if (numberOfBoxes == chosenIndexes.length) {
+      playGuess();
+      //if there are too many notes, remove the first and test
+    } else if (numberOfBoxes > chosenIndexes.length) {
+      $('#target .boxes .box:first-child').click(); //click to remove
+      playGuess();
+    }
+  };
+
+  function playClickedNote() {
+    updateScore(-1);
+    var scaleIndex = $(this).data('scale-index');
+    playAndHighlight(scaleIndex);
+  }
+
   function setupScaleBoxes() {
     var $boxes = $('#scale .boxes').empty();
     var $box;
@@ -152,16 +144,8 @@
       if (scale.indexOf(i) > -1) { //this is a note
         $box.attr('data-scale-index', scale.indexOf(i));
         $box.addClass('in-scale');
-        $box.attr('draggable', 'true');
-        $box.on('dragstart', function (e) {
-          e.originalEvent.dataTransfer.effectAllowed = 'move';
-          e.originalEvent.dataTransfer.setData('Text', $(this).attr('data-index'));
-        });
-        $box.click(function () {
-          updateScore(-1);
-          var scaleIndex = $(this).data('scale-index');
-          playAndHighlight(scaleIndex);
-        });
+        $box.on('doubletap', submitGuess);
+        $box.on('singletap', playClickedNote);
       }
     }
   }
@@ -211,6 +195,11 @@
       }
     }
   }
+
+  // Prevent missed doubletaps from zooming the browser
+  $(document).on('doubletap', function (e) {
+    e.preventDefault();
+  });
 
   // Helpful for mobile debugging
   window.onerror = function (e) {

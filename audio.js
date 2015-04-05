@@ -15,12 +15,12 @@ var audio = (function () {
       chosenIndexes = [chosenIndexes];
     }
 
-    chosenIndexes.forEach(function (item) {
-      playTone(freqs[item], startCallback, endCallback);
+    chosenIndexes.forEach(function (item, index) {
+      playTone(freqs[item], startCallback, endCallback, index === 0);
     });
   }
 
-  function playTone(freq, startCallback, endCallback) {
+  function playTone(freq, startCallback, endCallback, callCallbacks) {
     var length = 1;
     var osc = c.createOscillator();
     var g = c.createGain();
@@ -36,8 +36,10 @@ var audio = (function () {
     osc.connect(g);
     g.connect(c.destination);
 
-    startCallback && startCallback();
-    osc.onended = endCallback;
+    if (callCallbacks) {
+      startCallback && startCallback();
+      osc.onended = endCallback;
+    }
   }
 
   function setWaveform(osc) {
@@ -65,6 +67,7 @@ var audio = (function () {
     g.gain.setValueAtTime(maxGain, end - fadeTime);
     g.gain.exponentialRampToValueAtTime(minGain, end);
   }
+
 
   return {
     setupTones: setupTones,

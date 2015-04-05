@@ -61,6 +61,11 @@ h1 {
 
 #scale {
   margin-bottom: 20px;
+
+  /* Prevent accidental selection from doubleclicking */
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 #scale .boxes {
