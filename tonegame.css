@@ -22,6 +22,10 @@ body {
   letter-spacing: -0.1em;
 }
 
+#counts .label {
+  margin-bottom: -10px;
+}
+
 a {
   text-decoration: none;
   color: black;
