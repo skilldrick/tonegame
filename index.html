@@ -9,8 +9,10 @@
   </head>
   <body>
 
-    <div id="score"></div>
-    <div id="level"></div>
+    <div id="counts">
+      <div id="score">Score: <span class="value"></span></div>
+      <div id="level">Level: <span class="value"></span></div>
+    </div>
 
     <div id="main">
       <h1>tonegame</h1>
@@ -33,6 +35,15 @@
       <div id="tick"><p class='tick'>&#x2714</p></div>
       <div id="cross"><p class='cross'>&#x2717</p></div>
 
+      <div id="instructions">
+        <p>Click the ? to hear the tone you need to match. Click the colored boxes
+        to hear the available tones. Drag the correct tone into the empty box.<p>
+
+        <p>As you find correct matches, your score will increase by 10 points.
+        For every tone you listen to, you lose a point.</p>
+
+        <p>Get 50 points to reach the second level!</p>
+      </div>
 
       <p id="github"><a href='http://github.com/skilldrick/tonegame'>Fork me on github</a></p>
     </div>

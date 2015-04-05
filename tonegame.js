@@ -95,8 +95,8 @@
     if (!exploring) {
       score += by;
     }
-    $('#score').text(score);
-    $('#level').text(level);
+    $('#score .value').text(score);
+    $('#level .value').text(level);
   }
 
   function playClue() {

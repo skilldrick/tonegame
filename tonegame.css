@@ -2,20 +2,24 @@ body {
   font-family: monospace;
 }
 
-#score, #level {
-  height: 130px;
+#counts {
   width: 250px;
-  float: left;
-  text-align: center;
-  font-size: 150px;
-  letter-spacing: -0.1em;
+  float: right;
+  text-align: left;
   color: #555;
+  font-size: 20px;
+  height: 130px;
   line-height: 1;
 }
 
 #level {
-  clear: left;
+  clear: right;
   margin-bottom: 20px;
+}
+
+#counts .value {
+  font-size: 150px;
+  letter-spacing: -0.1em;
 }
 
 a {
@@ -40,7 +44,7 @@ h1 {
   overflow: hidden;
   margin: 5px;
   padding: 5px;
-  box-shadow: inset 0 0 5px #ccc;
+  border: 1px solid #999;
 }
 
 .box {
@@ -52,7 +56,7 @@ h1 {
 }
 
 .playing .box, #scale .box.playing {
-  outline: 5px solid yellow;
+  outline: 3px solid #ccc;
 }
 
 #scale {
@@ -60,8 +64,8 @@ h1 {
 }
 
 #scale .boxes {
-  width: 1050px;
-  height: 70px;
+  border: 0;
+  line-height: 0;
 }
 
 #scale .box {
@@ -131,6 +135,7 @@ h1 {
 
 #target {
   float: left;
+  margin-bottom: 30px;
 }
 
 #target .box:hover {
@@ -143,7 +148,11 @@ h1 {
 }
 
 #target .boxes.over {
-  box-shadow: inset 0 0 10px #aaa;
+  border: 1px solid #333;
+}
+
+#instructions {
+  clear: both;
 }
 
 #github {
